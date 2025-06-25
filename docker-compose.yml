@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -19,7 +19,7 @@ services:
 
   web:
     build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py makemigrations python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
@@ -33,6 +33,17 @@ services:
   celery:
     build: .
     command: celery -A library_system worker -l info
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+
+  celery_beat:
+    build: .
+    command: celery -A library_system beat -l info
     volumes:
       - .:/code
     env_file:
